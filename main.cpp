@@ -3,7 +3,8 @@
 #include <string>
 using namespace std;
 
-class Lesson {
+class Lesson
+{
 private:
     string lessonTitle;
     string content;
@@ -11,12 +12,14 @@ private:
 public:
     Lesson(string title = "", string cont = "") : lessonTitle(title), content(cont) {}
 
-    void displayLesson() {
+    void displayLesson() const
+    {
         cout << "Lesson: " << lessonTitle << "\nContent: " << content << endl;
     }
 };
 
-class Course {
+class Course
+{
 private:
     string courseID, title;
     vector<Lesson> lessons;
@@ -24,15 +27,21 @@ private:
 public:
     Course(string id = "", string t = "") : courseID(id), title(t) {}
 
-    void addLesson(string title, string content) {
+    void addLesson(string title, string content)
+    {
         lessons.push_back(Lesson(title, content));
     }
 
-    void displayCourse() {
-        cout << "Course ID: " << courseID << ", Title: " << title << endl;
-        for (auto& lesson : lessons) {
+    void displayCourse() const
+    {
+        cout << "\nCourse ID: " << courseID << ", Title: " << title << endl;
+        for (auto &lesson : lessons)
+        {
             lesson.displayLesson();
         }
+        cout << "\n------------------------\n";
+
+        cout << endl;
     }
 
     string getCourseID() { return courseID; }
@@ -40,73 +49,112 @@ public:
     friend class Student;
 };
 
-class User {
+class User
+{
 protected:
     string username, password, name;
 
 public:
     User(string u = "", string p = "", string n = "") : username(u), password(p), name(n) {}
 
-    virtual void displayProfile() {
+    virtual void displayProfile()
+    {
         cout << "Name: " << name << ", Username: " << username << endl;
     }
 
-    bool login(string u, string p) {
+    bool login(string u, string p)
+    {
         return username == u && password == p;
     }
 
-    void setPassword(string newPass) {
+    void setPassword(string newPass)
+    {
         password = newPass;
     }
 
-    string getUsername() const {
+    string getUsername() const
+    {
         return username;
     }
 
     virtual string getRole() const = 0;
+
+    void showInfo() const
+    {
+        cout << "\n--- User Information ---\n";
+        cout << "Username: " << username << endl;
+        cout << "Name: " << name << endl;
+        cout << "Role: " << getRole() << endl;
+        cout << "------------------------\n";
+    }
 };
 
-class Student : virtual public User {
+class Student : virtual public User
+{
 private:
-    vector<Course*> enrolledCourses;
+    vector<Course *> enrolledCourses;
 
 public:
     Student(string u, string p, string n) : User(u, p, n) {}
 
-    void enroll(Course* course) {
+    void enroll(Course *course)
+    {
         enrolledCourses.push_back(course);
     }
 
-    void viewEnrolledCourses() {
+    void viewEnrolledCourses()
+    {
         cout << "--- Enrolled Courses for " << name << " ---\n";
         for (auto c : enrolledCourses)
             c->displayCourse();
     }
 
-    void displayProfile() override {
+    void showCourses() const
+    {
+        cout << "\n--- Enrolled Courses for " << name << " ---\n";
+        if (enrolledCourses.empty())
+        {
+            cout << "No courses enrolled.\n";
+            return;
+        }
+
+        for (const auto &course : enrolledCourses)
+        {
+            course->displayCourse();
+            cout << "------------------------\n";
+        }
+    }
+
+    void displayProfile() override
+    {
         cout << "[Student] ";
         User::displayProfile();
     }
 
-    string getRole() const override {
+    string getRole() const override
+    {
         return "Student";
     }
 };
 
-class Instructor : virtual public User {
+class Instructor : virtual public User
+{
 public:
     Instructor(string u, string p, string n) : User(u, p, n) {}
 
-    void displayProfile() override {
+    void displayProfile() override
+    {
         cout << "[Instructor] ";
         User::displayProfile();
     }
 
-    string getRole() const override {
+    string getRole() const override
+    {
         return "Instructor";
     }
 
-    void addCourse(vector<Course>& courses) {
+    void addCourse(vector<Course> &courses)
+    {
         string id, title;
         cout << "Enter Course ID: ";
         cin >> id;
@@ -119,7 +167,8 @@ public:
         cout << "How many lessons? ";
         cin >> lessonCount;
         cin.ignore();
-        for (int i = 0; i < lessonCount; i++) {
+        for (int i = 0; i < lessonCount; i++)
+        {
             string lt, lc;
             cout << "Enter Lesson Title: ";
             getline(cin, lt);
@@ -131,50 +180,80 @@ public:
         courses.push_back(newCourse);
         cout << "Course added successfully.\n";
     }
+
+    void showCourses(const vector<Course> &courses)
+    {
+        cout << "\n--- All Courses ---\n";
+        if (courses.empty())
+        {
+            cout << "No courses available.\n";
+            return;
+        }
+
+        for (const auto &course : courses)
+        {
+            course.displayCourse();
+            cout << "\n------------------------\n";
+        }
+    }
 };
 
-class TeachingAssistant : public Student, public Instructor {
+class TeachingAssistant : public Student, public Instructor
+{
 public:
     TeachingAssistant(string u, string p, string n)
         : User(u, p, n), Student(u, p, n), Instructor(u, p, n) {}
 
-    void displayProfile() override {
+    void displayProfile() override
+    {
         cout << "[Teaching Assistant] ";
         User::displayProfile();
     }
 
-    string getRole() const override {
+    string getRole() const override
+    {
         return "TA";
     }
 };
 
-class Admin : public User {
+class Admin : public User
+{
 public:
     Admin(string u, string p, string n) : User(u, p, n) {}
 
-    void displayProfile() override {
+    void displayProfile() override
+    {
         cout << "[Admin] ";
         User::displayProfile();
     }
 
-    string getRole() const override {
+    string getRole() const override
+    {
         return "Admin";
     }
 
-    void resetPassword(User& u, string newPass) {
+    void resetPassword(User &u, string newPass)
+    {
         u.setPassword(newPass);
         cout << "Password changed for " << u.getUsername() << endl;
     }
 
-    void addUser(vector<User*>& users) {
+    void addUser(vector<User *> &users)
+    {
         int type;
         string u, p, n;
-        cout << "Enter username: "; cin >> u;
-        cout << "Enter password: "; cin >> p;
-        cout << "Enter name: "; cin.ignore(); getline(cin, n);
-        cout << "User type (1-Student, 2-Instructor, 3-TA, 4-Admin): "; cin >> type;
+        cout << "Enter username: ";
+        cin >> u;
+        cout << "Enter password: ";
+        cin >> p;
+        cout << "Enter name: ";
+        cin.ignore();
+        getline(cin, n);
+        cout << "User type (1-Student, 2-Instructor, 3-TA, 4-Admin): ";
+        cin >> type;
 
-        switch (type) {
+        switch (type)
+        {
         case 1:
             users.push_back(new Student(u, p, n));
             break;
@@ -193,21 +272,43 @@ public:
 
         cout << "User added.\n";
     }
+
+    void showCourses(const vector<Course> &courses)
+    {
+        cout << "\n--- All Courses ---\n";
+        if (courses.empty())
+        {
+            cout << "No courses available.\n";
+            return;
+        }
+
+        for (const auto &course : courses)
+        {
+            course.displayCourse();
+            cout << "------------------------\n";
+        }
+    }
 };
 
-bool loginSystem(vector<User*>& users, User*& loggedInUser) {
+bool loginSystem(vector<User *> &users, User *&loggedInUser)
+{
     string u, p;
     cout << "\n--- Login Page ---\n";
     cout << "1. Login\n0. Exit\nChoice: ";
     int option;
     cin >> option;
-    if (option == 0) return false;
+    if (option == 0)
+        return false;
 
-    cout << "Username: "; cin >> u;
-    cout << "Password: "; cin >> p;
+    cout << "Username: ";
+    cin >> u;
+    cout << "Password: ";
+    cin >> p;
 
-    for (auto user : users) {
-        if (user->login(u, p)) {
+    for (auto user : users)
+    {
+        if (user->login(u, p))
+        {
             loggedInUser = user;
             return true;
         }
@@ -216,14 +317,15 @@ bool loginSystem(vector<User*>& users, User*& loggedInUser) {
     return true;
 }
 
-int main() {
-    vector<User*> users;
+int main()
+{
+    vector<User *> users;
     vector<Course> courses;
 
-    Student* s1 = new Student("std1", "123", "Ali");
-    Instructor* ins1 = new Instructor("ins1", "123", "Dr. Ahmed");
-    TeachingAssistant* ta1 = new TeachingAssistant("ta1", "123", "Mona");
-    Admin* admin1 = new Admin("admin", "admin", "Admin");
+    Student *s1 = new Student("std1", "123", "Ali");
+    Instructor *ins1 = new Instructor("ins1", "123", "Dr. Ahmed");
+    TeachingAssistant *ta1 = new TeachingAssistant("ta1", "123", "Mona");
+    Admin *admin1 = new Admin("admin", "admin", "Admin");
 
     users.push_back(s1);
     users.push_back(ins1);
@@ -243,74 +345,125 @@ int main() {
 
     cout << "Welcome to the Course Management System\n";
 
-    while (true) {
-        User* loggedIn = nullptr;
+    while (true)
+    {
+        User *loggedIn = nullptr;
         bool continueLogin = loginSystem(users, loggedIn);
-        if (!continueLogin) break;
+        if (!continueLogin)
+            break;
 
-        if (loggedIn == nullptr) continue;
+        if (loggedIn == nullptr)
+            continue;
 
         cout << "Login successful as " << loggedIn->getRole() << "\n";
 
-        if (loggedIn->getRole() == "Student") {
-            Student* s = dynamic_cast<Student*>(loggedIn);
+        if (loggedIn->getRole() == "Student")
+        {
+            Student *s = dynamic_cast<Student *>(loggedIn);
             int choice;
-            do {
-                cout << "\n1. View Courses\n2. Enroll in Course\n3. View Enrolled Courses\n0. Logout\nChoice: ";
+            do
+            {
+                cout << "\n1. View Courses\n2. Enroll in Course\n3. View Enrolled Courses\n"
+                     << "4. Show My Information\n0. Logout\nChoice: ";
                 cin >> choice;
-                if (choice == 1) {
-                    for (auto& c : courses) c.displayCourse();
-                } else if (choice == 2) {
+                if (choice == 1)
+                {
+                    for (auto &c : courses)
+                        c.displayCourse();
+                }
+                else if (choice == 2)
+                {
                     string id;
                     cout << "Enter Course ID: ";
                     cin >> id;
-                    for (auto& c : courses) {
-                        if (c.getCourseID() == id) {
+                    for (auto &c : courses)
+                    {
+                        if (c.getCourseID() == id)
+                        {
                             s->enroll(&c);
                             cout << "Enrolled successfully.\n";
                         }
                     }
-                } else if (choice == 3) {
-                    s->viewEnrolledCourses();
+                }
+                else if (choice == 3)
+                {
+                    s->showCourses();
+                }
+                else if (choice == 4)
+                {
+                    s->showInfo();
                 }
             } while (choice != 0);
-        } else if (loggedIn->getRole() == "Instructor") {
-            Instructor* ins = dynamic_cast<Instructor*>(loggedIn);
+        }
+        else if (loggedIn->getRole() == "Instructor")
+        {
+            Instructor *ins = dynamic_cast<Instructor *>(loggedIn);
             int choice;
-            do {
-                cout << "\n1. Add Course\n0. Logout\nChoice: ";
+            do
+            {
+                cout << "\n1. Add Course\n2. Show All Courses\n"
+                     << "3. Show My Information\n0. Logout\nChoice: ";
                 cin >> choice;
-                if (choice == 1) {
+                if (choice == 1)
+                {
                     ins->addCourse(courses);
                 }
+                else if (choice == 2)
+                {
+                    ins->showCourses(courses);
+                }
+                else if (choice == 3)
+                {
+                    ins->showInfo();
+                }
             } while (choice != 0);
-        } else if (loggedIn->getRole() == "Admin") {
-            Admin* a = dynamic_cast<Admin*>(loggedIn);
+        }
+        else if (loggedIn->getRole() == "Admin")
+        {
+            Admin *a = dynamic_cast<Admin *>(loggedIn);
             int choice;
-            do {
-                cout << "\n1. Add User\n2. Reset Password\n0. Logout\nChoice: ";
+            do
+            {
+                cout << "\n1. Add User\n2. Reset Password\n3. Show All Courses\n"
+                     << "4. Show My Information\n0. Logout\nChoice: ";
                 cin >> choice;
-                if (choice == 1) {
+                if (choice == 1)
+                {
                     a->addUser(users);
-                } else if (choice == 2) {
+                }
+                else if (choice == 2)
+                {
                     string uname;
                     cout << "Enter username to reset password: ";
                     cin >> uname;
-                    for (auto u : users) {
-                        if (u->getUsername() == uname) {
+                    for (auto u : users)
+                    {
+                        if (u->getUsername() == uname)
+                        {
                             a->resetPassword(*u, "newpass123");
                         }
                     }
                 }
+                else if (choice == 3)
+                {
+                    a->showCourses(courses);
+                }
+                else if (choice == 4)
+                {
+                    a->showInfo();
+                }
             } while (choice != 0);
-        } else {
+        }
+        else
+        {
             loggedIn->displayProfile();
         }
     }
 
-    cout << "Exiting system.\n";
+    cout << "Exiting system...\n";
 
-    for (auto u : users) delete u;
+    for (auto u : users)
+        delete u;
 
     return 0;
 }
